@@ -1,0 +1,58 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.6874086911710425 -0.7045124069835788 -0.17644137754143352 0.6987707028141956
+  position -3.5895821743510217 4.8750518258848725 6.9781521455555495
+  followType "Pan and Tilt Shot"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RobotstadiumSoccerField {
+}
+UR10e {
+  translation 0 0.6 0
+  controller "<extern>"
+  toolSlot [
+    Camera {
+      translation 0.05 0 0
+      rotation 1 1 -1 -2.1
+      name "camera3"
+      fieldOfView 1.57
+      width 640
+      height 480
+    }
+    Camera {
+      translation 0 -0.2 0
+      rotation 1 0 0 -1.57
+      name "camera2"
+      fieldOfView 1.57
+      width 640
+      height 480
+    }
+    Camera {
+      translation -0.05 0 0
+      rotation 1 -1 1 -2.1
+      name "camera1"
+      fieldOfView 1.57
+      width 640
+      height 480
+    }
+    Camera {
+      rotation 0 1 -1 3.14
+      name "camera0"
+      fieldOfView 1.57
+      width 640
+      height 480
+    }
+  ]
+}
+WoodenChair {
+  translation 3 0 -2
+}
+DogHouse {
+  translation -1.5 0 2
+}

@@ -1,0 +1,19 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.9903324110540599 0.13670548439216276 0.023522885727665727 0.34405682384959624
+  position 0.4652881147234398 2.201868122226836 4.817321261295785
+  followType "Pan and Tilt Shot"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RobotstadiumSoccerField {
+}
+UR10e {
+  translation 0 0.6 0
+  controller "<extern>"
+}
