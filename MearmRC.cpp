@@ -96,24 +96,23 @@ public:
 public:
 	double motors[6] = { 0 };
 	int64 actions[2] = { 0 };
+	int64 nspace = 0;
+	void keyPressEvent(QKeyEvent* e) { if (e->key() == ' ') ++nspace; groupBoxDisplayPanel->setTitle(QString("DisplayPanel: nspace=%1").arg(nspace)); }
 	MearmRC(QWidget* parent = 0) : QWidget(parent)
 	{
-
 		//0.Basic settting
 		this->setWindowTitle("Super Cube");
 		this->setMinimumSize(QSize(640, 240));
 		this->setFont(QFont("", 15, QFont::Thin));
+		this->setFocusPolicy(Qt::StrongFocus);
 
 		//1.Group1 setting
 		vboxLayoutMain->addWidget(groupBoxControlPanel);
 		vboxLayoutMain->addWidget(groupBoxDisplayPanel);
 		{
-			vboxLayoutMain->setStretch(0, 1);
-			vboxLayoutMain->setStretch(1, 2);
-			for (int k = 1; k < comboBoxMotorModes.size(); ++k) comboBoxMotorModes[k]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
-			for (int k = 0; k < pushButtonMotorPlus.size(); ++k) pushButtonMotorPlus[k]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
-			for (int k = 0; k < pushButtonMotorMinus.size(); ++k) pushButtonMotorMinus[k]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
-
+			vboxLayoutMain->setStretch(1, 1);
+			QList<QWidget*> children = groupBoxDisplayPanel->findChildren<QWidget*>();
+			for (int k = 0; k < children.size(); ++k) children[k]->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 		}
 
 		//2.Group2 setting
@@ -249,12 +248,12 @@ int main(int argc, char** argv)
 		QApplication::processEvents();
 		if (wbcamsData.empty()) continue;
 		Mat allIma; hconcat(wbcamsData, allIma);
-		if (mearmRC.actions[0] % 2)
+		if (mearmRC.nspace % 2)
 		{
 			int64 name = ns1970;
 			for (int k = 0; k < wbcamsData.size(); ++k) { utils::fs::createDirectories(fmt::format("./{}/cam{}", timestart, k)); cv::imwrite(fmt::format("./{}/cam{}/{}.png", timestart, k, name), wbcamsData[k]); }
 			utils::fs::createDirectories(fmt::format("./{}/all", timestart)); cv::imwrite(fmt::format("./{}/all/{}.png", timestart, name), allIma);
-			++mearmRC.actions[0];
+			++mearmRC.nspace;
 		}
 		cvtColor(allIma, allIma, COLOR_BGRA2RGBA);
 		mearmRC.labelVis->setScaledContents(true);
