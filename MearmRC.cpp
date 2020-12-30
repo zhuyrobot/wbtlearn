@@ -125,8 +125,8 @@ public:
 			for (int k = 0; k < comboBoxMotorModes.size(); ++k) comboBoxMotorModes[k]->addItems(QStringList() << "Mode0" << "Mode1");
 			for (int k = 0; k < doubleSpinBoxMotorRanges.size(); ++k) { doubleSpinBoxMotorRanges[k]->setRange(0, 100); doubleSpinBoxMotorRanges[k]->setValue(0.5); }
 			for (int k = 0; k < comboBoxMotorModes.size(); ++k) connect(comboBoxMotorModes[k], QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index)->void {QMessageBox::information(this, "", "Not enabled yet"); });
-			for (int k = 0; k < pushButtonMotorPlus.size(); ++k) connect(pushButtonMotorPlus[k], &QPushButton::pressed, [this, k]()->void 
-				{ 
+			for (int k = 0; k < pushButtonMotorPlus.size(); ++k) connect(pushButtonMotorPlus[k], &QPushButton::pressed, [this, k]()->void
+				{
 					motors[k] = doubleSpinBoxMotorRanges[k]->value();
 					groupBoxControlPanel->setTitle(QString("ControlPanel: motor%1=%2").arg(k).arg(motors[k]));
 				});
@@ -168,12 +168,12 @@ public:
 
 	QGridLayout* gridLayoutControlPanel = new QGridLayout(groupBoxControlPanel);
 	vector<QComboBox*> comboBoxMotorModes = { new QComboBox(groupBoxControlPanel), new QComboBox(groupBoxControlPanel), new QComboBox(groupBoxControlPanel) };
-	vector<QDoubleSpinBox*> doubleSpinBoxMotorRanges = 
-	{ 
+	vector<QDoubleSpinBox*> doubleSpinBoxMotorRanges =
+	{
 		new QDoubleSpinBox(groupBoxControlPanel), new QDoubleSpinBox(groupBoxControlPanel), new QDoubleSpinBox(groupBoxControlPanel),
 		new QDoubleSpinBox(groupBoxControlPanel), new QDoubleSpinBox(groupBoxControlPanel), new QDoubleSpinBox(groupBoxControlPanel)
 	};
-	vector<QPushButton*> pushButtonMotorPlus = 
+	vector<QPushButton*> pushButtonMotorPlus =
 	{
 		new QPushButton("Motor0+", groupBoxControlPanel), new QPushButton("Motor1+", groupBoxControlPanel), new QPushButton("Motor2+", groupBoxControlPanel),
 		new QPushButton("Motor3+", groupBoxControlPanel), new QPushButton("Motor4+", groupBoxControlPanel), new QPushButton("Motor5+", groupBoxControlPanel)
@@ -206,14 +206,15 @@ public:
 //2.6 Add WebotsProjects->objects->garden->DogHouse and set: translation=-1.5 0 2
 int main(int argc, char** argv)
 {
-	//MearmRC::TestGUI(); return 0;
-	//MearmRC::TestURE(); return 0;
+	//MearmRC::TestGUI(argc, argv); return 0;
+	//MearmRC::TestURE(argc, argv); return 0;
 
 	//0.GetConstant
 	using namespace webots;
 	const int timeStep = 64;
 	const int camTimeStep = timeStep * 2;
 	vector<string> camsName = { "camera0", "camera1", "camera2", "camera3" };
+	if (argc < 2) { camsName.clear(); spdlog::warn("Camera devices disabled"); }
 	vector<string> motorsName = { "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint" };
 	const int64 timestart = ms1970;
 	utils::fs::createDirectories(fmt::format("./{}", timestart));
@@ -245,20 +246,18 @@ int main(int argc, char** argv)
 		for (int k = 0; k < wbmotors.size(); ++k) wbmotors[k]->setVelocity(mearmRC.motors[k]);
 
 		//3.3 ShowResults
+		QApplication::processEvents();
+		if (wbcamsData.empty()) continue;
 		Mat allIma; hconcat(wbcamsData, allIma);
 		if (mearmRC.actions[0] % 2)
 		{
 			int64 name = ns1970;
-			utils::fs::createDirectories(fmt::format("./{}/cam0", timestart)); cv::imwrite(fmt::format("./{}/cam0/{}.png", timestart, name), wbcamsData[0]);
-			utils::fs::createDirectories(fmt::format("./{}/cam1", timestart)); cv::imwrite(fmt::format("./{}/cam1/{}.png", timestart, name), wbcamsData[1]);
-			utils::fs::createDirectories(fmt::format("./{}/cam2", timestart)); cv::imwrite(fmt::format("./{}/cam2/{}.png", timestart, name), wbcamsData[2]);
-			utils::fs::createDirectories(fmt::format("./{}/cam3", timestart)); cv::imwrite(fmt::format("./{}/cam3/{}.png", timestart, name), wbcamsData[3]);
+			for (int k = 0; k < wbcamsData.size(); ++k) { utils::fs::createDirectories(fmt::format("./{}/cam{}", timestart, k)); cv::imwrite(fmt::format("./{}/cam{}/{}.png", timestart, k, name), wbcamsData[k]); }
 			utils::fs::createDirectories(fmt::format("./{}/all", timestart)); cv::imwrite(fmt::format("./{}/all/{}.png", timestart, name), allIma);
 			++mearmRC.actions[0];
 		}
 		cvtColor(allIma, allIma, COLOR_BGRA2RGBA);
 		mearmRC.labelVis->setScaledContents(true);
 		mearmRC.labelVis->setPixmap(QPixmap::fromImage(QImage(allIma.data, allIma.cols, allIma.rows, QImage::Format_RGBA8888)));
-		QApplication::processEvents();
 	}
 }
